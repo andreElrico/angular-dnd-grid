@@ -6,12 +6,13 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Injectable, Inject, NgZone, ElementRef} from '@angular/core';
+import {ElementRef, Inject, Injectable, NgZone} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {ViewportRuler} from '@angular/cdk/scrolling';
 import {DragRef, DragRefConfig} from './drag-ref';
-import {DropListRef} from './drop-list-ref';
+import {DropListRef} from './containers/drop-list-ref';
 import {DragDropRegistry} from './drag-drop-registry';
+import {DropGridRef} from "@modules/drag-drop/containers/drop-grid-ref";
 
 /** Default configuration to be used when creating a `DragRef`. */
 const DEFAULT_CONFIG = {
@@ -28,7 +29,8 @@ export class DragDrop {
     @Inject(DOCUMENT) private _document: any,
     private _ngZone: NgZone,
     private _viewportRuler: ViewportRuler,
-    private _dragDropRegistry: DragDropRegistry<DragRef, DropListRef>) {}
+    private _dragDropRegistry: DragDropRegistry) {
+  }
 
   /**
    * Turns an element into a draggable item.
@@ -49,5 +51,14 @@ export class DragDrop {
   createDropList<T = any>(element: ElementRef<HTMLElement> | HTMLElement): DropListRef<T> {
     return new DropListRef<T>(element, this._dragDropRegistry, this._document, this._ngZone,
         this._viewportRuler);
+  }
+
+  /**
+   * Turns an element into a drop list.
+   * @param element Element to which to attach the drop list functionality.
+   */
+  createDropGrid<T = any>(element: ElementRef<HTMLElement> | HTMLElement): DropGridRef<T> {
+    return new DropGridRef<T>(element, this._dragDropRegistry, this._document, this._ngZone,
+      this._viewportRuler);
   }
 }

@@ -6,8 +6,9 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Directive, OnDestroy, Input} from '@angular/core';
+import {Directive, Input, OnDestroy} from '@angular/core';
 import {coerceBooleanProperty} from '@angular/cdk/coercion';
+import {CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
 
 /**
  * Declaratively connects sibling `cdkDropList` instances together. All of the `cdkDropList`
@@ -16,15 +17,15 @@ import {coerceBooleanProperty} from '@angular/cdk/coercion';
  * from `cdkDropList`.
  */
 @Directive({
-  selector: '[cdkDropListGroup]',
-  exportAs: 'cdkDropListGroup',
+  selector: '[cdkDropContainerGroup]',
+  exportAs: 'cdkDropContainerGroup',
 })
-export class CdkDropListGroup<T> implements OnDestroy {
+export class CdkDropContainerGroup implements OnDestroy {
   /** Drop lists registered inside the group. */
-  readonly _items = new Set<T>();
+  readonly _items = new Set<CdkDropContainer>();
 
   /** Whether starting a dragging sequence from inside this group is disabled. */
-  @Input('cdkDropListGroupDisabled')
+  @Input('cdkDropContainerGroupDisabled')
   get disabled(): boolean { return this._disabled; }
   set disabled(value: boolean) {
     this._disabled = coerceBooleanProperty(value);

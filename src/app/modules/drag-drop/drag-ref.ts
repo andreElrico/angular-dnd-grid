@@ -6,17 +6,17 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {EmbeddedViewRef, ElementRef, NgZone, ViewContainerRef, TemplateRef} from '@angular/core';
+import {ElementRef, EmbeddedViewRef, NgZone, TemplateRef, ViewContainerRef} from '@angular/core';
 import {ViewportRuler} from '@angular/cdk/scrolling';
 import {Direction} from '@angular/cdk/bidi';
 import {normalizePassiveListenerOptions} from '@angular/cdk/platform';
 import {coerceBooleanProperty, coerceElement} from '@angular/cdk/coercion';
-import {Subscription, Subject, Observable} from 'rxjs';
+import {Observable, Subject, Subscription} from 'rxjs';
 import {startWith} from 'rxjs/operators';
-import {DropListRefInternal as DropListRef} from './drop-list-ref';
 import {DragDropRegistry} from './drag-drop-registry';
 import {extendStyles, toggleNativeDragInteractions} from './drag-styling';
 import {getTransformTransitionDurationInMs} from './transition-duration';
+import {DropContainerRef} from "@modules/drag-drop/containers/drop-container-ref";
 
 /** Object that can be used to configure the behavior of DragRef. */
 export interface DragRefConfig {
@@ -55,7 +55,8 @@ const MOUSE_EVENT_IGNORE_TIME = 800;
  * Used to avoid circular import issues between the `DragRef` and the `DropListRef`.
  * @docs-private
  */
-export interface DragRefInternal extends DragRef {}
+export interface DragRefInternal extends DragRef {
+}
 
 /** Template that can be used to create a drag helper element (e.g. a preview or a placeholder). */
 interface DragHelperTemplate<T = any> {
@@ -117,22 +118,22 @@ export class DragRef<T = any> {
   private _hasMoved: boolean;
 
   /** Drop container in which the DragRef resided when dragging began. */
-  private _initialContainer: DropListRef;
+  private _initialContainer: DropContainerRef;
 
   /** Cached scroll position on the page when the element was picked up. */
-  private _scrollPosition: {top: number, left: number};
+  private _scrollPosition: { top: number, left: number };
 
   /** Emits when the item is being moved. */
   private _moveEvents = new Subject<{
     source: DragRef;
-    pointerPosition: {x: number, y: number};
+    pointerPosition: { x: number, y: number };
     event: MouseEvent | TouchEvent;
     distance: Point;
-    delta: {x: -1 | 0 | 1, y: -1 | 0 | 1};
+    delta: { x: -1 | 0 | 1, y: -1 | 0 | 1 };
   }>();
 
   /** Keeps track of the direction in which the user is dragging along each axis. */
-  private _pointerDirectionDelta: {x: -1 | 0 | 1, y: -1 | 0 | 1};
+  private _pointerDirectionDelta: { x: -1 | 0 | 1, y: -1 | 0 | 1 };
 
   /** Pointer position at which the last change in the delta occurred. */
   private _pointerPositionAtLastDirectionChange: Point;
@@ -193,7 +194,7 @@ export class DragRef<T = any> {
   private _disabledHandles = new Set<HTMLElement>();
 
   /** Droppable container that the draggable is a part of. */
-  private _dropContainer?: DropListRef;
+  private _dropContainer?: DropContainerRef;
 
   /** Layout direction of the item. */
   private _direction: Direction = 'ltr';
@@ -211,6 +212,7 @@ export class DragRef<T = any> {
   get disabled(): boolean {
     return this._disabled || !!(this._dropContainer && this._dropContainer.disabled);
   }
+
   set disabled(value: boolean) {
     const newValue = coerceBooleanProperty(value);
 
@@ -219,33 +221,34 @@ export class DragRef<T = any> {
       this._toggleNativeDragInteractions();
     }
   }
+
   private _disabled = false;
 
   /** Emits as the drag sequence is being prepared. */
   beforeStarted = new Subject<void>();
 
   /** Emits when the user starts dragging the item. */
-  started = new Subject<{source: DragRef}>();
+  started = new Subject<{ source: DragRef }>();
 
   /** Emits when the user has released a drag item, before any animations have started. */
-  released = new Subject<{source: DragRef}>();
+  released = new Subject<{ source: DragRef }>();
 
   /** Emits when the user stops dragging an item in the container. */
-  ended = new Subject<{source: DragRef, distance: Point}>();
+  ended = new Subject<{ source: DragRef, distance: Point }>();
 
   /** Emits when the user has moved the item into a new container. */
-  entered = new Subject<{container: DropListRef, item: DragRef, currentIndex: number}>();
+  entered = new Subject<{ container: DropContainerRef, item: DragRef, currentIndex: number }>();
 
   /** Emits when the user removes the item its container by dragging it into another container. */
-  exited = new Subject<{container: DropListRef, item: DragRef}>();
+  exited = new Subject<{ container: DropContainerRef, item: DragRef }>();
 
   /** Emits when the user drops the item inside a container. */
   dropped = new Subject<{
-    previousIndex: number;
-    currentIndex: number;
+    previousIndex: any;
+    currentIndex: any;
     item: DragRef;
-    container: DropListRef;
-    previousContainer: DropListRef;
+    container: DropContainerRef;
+    previousContainer: DropContainerRef;
     distance: Point;
     isPointerOverContainer: boolean;
   }>();
@@ -256,10 +259,10 @@ export class DragRef<T = any> {
    */
   moved: Observable<{
     source: DragRef;
-    pointerPosition: {x: number, y: number};
+    pointerPosition: { x: number, y: number };
     event: MouseEvent | TouchEvent;
     distance: Point;
-    delta: {x: -1 | 0 | 1, y: -1 | 0 | 1};
+    delta: { x: -1 | 0 | 1, y: -1 | 0 | 1 };
   }> = this._moveEvents.asObservable();
 
   /** Arbitrary data that can be attached to the drag item. */
@@ -279,7 +282,7 @@ export class DragRef<T = any> {
     private _document: Document,
     private _ngZone: NgZone,
     private _viewportRuler: ViewportRuler,
-    private _dragDropRegistry: DragDropRegistry<DragRef, DropListRef>) {
+    private _dragDropRegistry: DragDropRegistry) {
 
     this.withRootElement(element);
     _dragDropRegistry.registerDragItem(this);
@@ -382,7 +385,7 @@ export class DragRef<T = any> {
     this._disabledHandles.clear();
     this._dropContainer = undefined;
     this._boundaryElement = this._rootElement = this._placeholderTemplate =
-        this._previewTemplate = this._nextSibling = null!;
+      this._previewTemplate = this._nextSibling = null!;
   }
 
   /** Checks whether the element is currently being dragged. */
@@ -422,7 +425,7 @@ export class DragRef<T = any> {
   }
 
   /** Sets the container that the item is part of. */
-  _withDropContainer(container: DropListRef) {
+  _withDropContainer(container: DropContainerRef) {
     this._dropContainer = container;
   }
 
@@ -509,7 +512,7 @@ export class DragRef<T = any> {
     } else if (!this.disabled) {
       this._initializeDragSequence(this._rootElement, event);
     }
-  }
+  };
 
   /** Handler that is invoked when the user moves their pointer after they've initiated a drag. */
   private _pointerMove = (event: MouseEvent | TouchEvent) => {
@@ -561,9 +564,9 @@ export class DragRef<T = any> {
     } else {
       const activeTransform = this._activeTransform;
       activeTransform.x =
-          constrainedPointerPosition.x - this._pickupPositionOnPage.x + this._passiveTransform.x;
+        constrainedPointerPosition.x - this._pickupPositionOnPage.x + this._passiveTransform.x;
       activeTransform.y =
-          constrainedPointerPosition.y - this._pickupPositionOnPage.y + this._passiveTransform.y;
+        constrainedPointerPosition.y - this._pickupPositionOnPage.y + this._passiveTransform.y;
 
       this._applyRootElementTransform(activeTransform.x, activeTransform.y);
 
@@ -588,12 +591,12 @@ export class DragRef<T = any> {
         });
       });
     }
-  }
+  };
 
   /** Handler that is invoked when the user lifts their pointer up, after initiating a drag. */
   private _pointerUp = (event: MouseEvent | TouchEvent) => {
     this._endDragSequence(event);
-  }
+  };
 
   /**
    * Clears subscriptions and stops the dragging sequence.
@@ -800,7 +803,7 @@ export class DragRef<T = any> {
     // case where two containers are connected one way and the user tries to undo dragging an
     // item into a new container.
     if (!newContainer && this._dropContainer !== this._initialContainer &&
-        this._initialContainer._isOverContainer(x, y)) {
+      this._initialContainer._isOverContainer(x, y)) {
       newContainer = this._initialContainer;
     }
 
@@ -823,7 +826,7 @@ export class DragRef<T = any> {
     this._dropContainer!._startScrollingIfNecessary(x, y);
     this._dropContainer!._sortItem(this, x, y, this._pointerDirectionDelta);
     this._preview.style.transform =
-        getTransform(x - this._pickupPositionInElement.x, y - this._pickupPositionInElement.y);
+      getTransform(x - this._pickupPositionInElement.x, y - this._pickupPositionInElement.y);
   }
 
   /**
@@ -837,11 +840,11 @@ export class DragRef<T = any> {
 
     if (previewTemplate) {
       const viewRef = previewConfig!.viewContainer.createEmbeddedView(previewTemplate,
-                                                                      previewConfig!.context);
+        previewConfig!.context);
       preview = viewRef.rootNodes[0];
       this._previewRef = viewRef;
       preview.style.transform =
-          getTransform(this._pickupPositionOnPage.x, this._pickupPositionOnPage.y);
+        getTransform(this._pickupPositionOnPage.x, this._pickupPositionOnPage.y);
     } else {
       const element = this._rootElement;
       const elementRect = element.getBoundingClientRect();
@@ -1063,7 +1066,7 @@ export class DragRef<T = any> {
     // transform before the user's, because things like rotation can affect which direction
     // the element will be translated towards.
     this._rootElement.style.transform = this._initialTransform ?
-      transform + ' ' + this._initialTransform  : transform;
+      transform + ' ' + this._initialTransform : transform;
   }
 
   /**
@@ -1157,8 +1160,8 @@ function getPreviewInsertionPoint(documentRef: any): HTMLElement {
   // because the preview will render under the fullscreen element.
   // TODO(crisbeto): dedupe this with the `FullscreenOverlayContainer` eventually.
   return documentRef.fullscreenElement ||
-         documentRef.webkitFullscreenElement ||
-         documentRef.mozFullScreenElement ||
-         documentRef.msFullscreenElement ||
-         documentRef.body;
+    documentRef.webkitFullscreenElement ||
+    documentRef.mozFullScreenElement ||
+    documentRef.msFullscreenElement ||
+    documentRef.body;
 }

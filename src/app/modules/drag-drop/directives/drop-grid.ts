@@ -26,12 +26,12 @@ import {Directionality} from '@angular/cdk/bidi';
 import {CdkDrag} from './drag';
 import {CdkDragDrop, CdkDragEnter, CdkDragExit, CdkDragSortEvent} from '../drag-events';
 import {CdkDropContainerGroup} from './drop-list-group';
-import {DropListRef} from '../containers/drop-list-ref';
 import {DragRef} from '../drag-ref';
 import {DragDrop} from '../drag-drop';
 import {Subject} from 'rxjs';
 import {startWith, takeUntil} from 'rxjs/operators';
 import {CDK_DROP_CONTAINER, CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
+import {DropGridRef} from "@modules/drag-drop/containers/drop-grid-ref";
 
 /** Counter used to generate unique ids for drop zones. */
 let _uniqueIdCounter = 0;
@@ -39,30 +39,30 @@ let _uniqueIdCounter = 0;
 
 /** Container that wraps a set of draggable items. */
 @Directive({
-  selector: '[cdkDropList], cdk-drop-list',
-  exportAs: 'cdkDropList',
+  selector: '[cdkDropGrid], cdk-drop-grid',
+  exportAs: 'cdkDropGrid',
   providers: [
     // Prevent child drop lists from picking up the same group as their parent.
     {provide: CdkDropContainerGroup, useValue: undefined},
-    {provide: CDK_DROP_CONTAINER, useExisting: CdkDropList},
+    {provide: CDK_DROP_CONTAINER, useExisting: CdkDropGrid},
   ],
   host: {
-    'class': 'cdk-drop-list',
+    'class': 'cdk-drop-grid',
     '[id]': 'id',
-    '[class.cdk-drop-list-disabled]': 'disabled',
-    '[class.cdk-drop-list-dragging]': '_dropContainerRef.isDragging()',
-    '[class.cdk-drop-list-receiving]': '_dropContainerRef.isReceiving()',
+    '[class.cdk-drop-grid-disabled]': 'disabled',
+    '[class.cdk-drop-grid-dragging]': '_dropContainerRef.isDragging()',
+    '[class.cdk-drop-grid-receiving]': '_dropContainerRef.isReceiving()',
   }
 })
-export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit, OnDestroy {
+export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit, OnDestroy {
   /** Emits when the list has been destroyed. */
   private _destroyed = new Subject<void>();
 
   /** Keeps track of the drop lists that are currently on the page. */
-  private static _dropLists: CdkDropList[] = [];
+  private static _dropLists: CdkDropGrid[] = [];
 
   /** Reference to the underlying drop list instance. */
-  _dropContainerRef: DropListRef<CdkDropList<T>>;
+  _dropContainerRef: DropGridRef<CdkDropGrid<T>>;
 
   /** Draggable items in the container. */
   @ContentChildren(forwardRef(() => CdkDrag), {
@@ -76,26 +76,26 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
    * container's items can be transferred. Can either be references to other drop containers,
    * or their unique IDs.
    */
-  @Input('cdkDropListConnectedTo')
+  @Input('cdkDropGridConnectedTo')
   connectedTo: (CdkDropContainer | string)[] | CdkDropContainer | string = [];
 
   /** Arbitrary data to attach to this container. */
-  @Input('cdkDropListData') data: T;
+  @Input('cdkDropGridData') data: T;
 
   /** Direction in which the list is oriented. */
-  @Input('cdkDropListOrientation') orientation: 'horizontal' | 'vertical' = 'vertical';
+  @Input('cdkDropGridOrientation') orientation: 'horizontal' | 'vertical' = 'vertical';
 
   /**
    * Unique ID for the drop zone. Can be used as a reference
-   * in the `connectedTo` of another `CdkDropList`.
+   * in the `connectedTo` of another `CdkDropGrid`.
    */
-  @Input() id: string = `cdk-drop-list-${_uniqueIdCounter++}`;
+  @Input() id: string = `cdk-drop-grid-${_uniqueIdCounter++}`;
 
   /** Locks the position of the draggable elements inside the container along the specified axis. */
-  @Input('cdkDropListLockAxis') lockAxis: 'x' | 'y';
+  @Input('cdkDropGridLockAxis') lockAxis: 'x' | 'y';
 
   /** Whether starting a dragging sequence from this container is disabled. */
-  @Input('cdkDropListDisabled')
+  @Input('cdkDropGridDisabled')
   get disabled(): boolean {
     return this._disabled || (!!this._group && this._group.disabled);
   }
@@ -107,7 +107,7 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
   private _disabled = false;
 
   /** Whether sorting within this drop list is disabled. */
-  @Input('cdkDropListSortingDisabled')
+  @Input('cdkDropGridSortingDisabled')
   get sortingDisabled(): boolean {
     return this._sortingDisabled;
   }
@@ -122,32 +122,32 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
    * Function that is used to determine whether an item
    * is allowed to be moved into a drop container.
    */
-  @Input('cdkDropListEnterPredicate')
-  enterPredicate: (drag: CdkDrag, drop: CdkDropList) => boolean = () => true;
+  @Input('cdkDropGridEnterPredicate')
+  enterPredicate: (drag: CdkDrag, drop: CdkDropGrid) => boolean = () => true;
 
   /** Whether to auto-scroll the view when the user moves their pointer close to the edges. */
-  @Input('cdkDropListAutoScrollDisabled')
+  @Input('cdkDropGridAutoScrollDisabled')
   autoScrollDisabled: boolean = false;
 
   /** Emits when the user drops an item inside the container. */
-  @Output('cdkDropListDropped')
+  @Output('cdkDropGridDropped')
   dropped: EventEmitter<CdkDragDrop<T, any>> = new EventEmitter<CdkDragDrop<T, any>>();
 
   /**
    * Emits when the user has moved a new drag item into this container.
    */
-  @Output('cdkDropListEntered')
+  @Output('cdkDropGridEntered')
   entered: EventEmitter<CdkDragEnter<T>> = new EventEmitter<CdkDragEnter<T>>();
 
   /**
    * Emits when the user removes an item from the container
    * by dragging it into another container.
    */
-  @Output('cdkDropListExited')
+  @Output('cdkDropGridExited')
   exited: EventEmitter<CdkDragExit<T>> = new EventEmitter<CdkDragExit<T>>();
 
   /** Emits as the user is swapping items while actively dragging. */
-  @Output('cdkDropListSorted')
+  @Output('cdkDropGridSorted')
   sorted: EventEmitter<CdkDragSortEvent<T>> = new EventEmitter<CdkDragSortEvent<T>>();
 
   constructor(
@@ -155,15 +155,15 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
     public element: ElementRef<HTMLElement>, dragDrop: DragDrop,
     private _changeDetectorRef: ChangeDetectorRef, @Optional() private _dir?: Directionality,
     @Optional() @SkipSelf() private _group?: CdkDropContainerGroup) {
-    this._dropContainerRef = dragDrop.createDropList(element);
+    this._dropContainerRef = dragDrop.createDropGrid(element);
     this._dropContainerRef.data = this;
-    this._dropContainerRef.enterPredicate = (drag: DragRef<CdkDrag>, drop: DropListRef<CdkDropList>) => {
+    this._dropContainerRef.enterPredicate = (drag: DragRef<CdkDrag>, drop: DropGridRef<CdkDropGrid>) => {
       return this.enterPredicate(drag.data, drop.data);
     };
 
     this._syncInputs(this._dropContainerRef);
     this._handleEvents(this._dropContainerRef);
-    CdkDropList._dropLists.push(this);
+    CdkDropGrid._dropLists.push(this);
 
     if (_group) {
       _group._items.add(this);
@@ -179,10 +179,10 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
   }
 
   ngOnDestroy() {
-    const index = CdkDropList._dropLists.indexOf(this);
+    const index = CdkDropGrid._dropLists.indexOf(this);
 
     if (index > -1) {
-      CdkDropList._dropLists.splice(index, 1);
+      CdkDropGrid._dropLists.splice(index, 1);
     }
 
     if (this._group) {
@@ -194,8 +194,8 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
     this._destroyed.complete();
   }
 
-  /** Syncs the inputs of the CdkDropList with the options of the underlying DropListRef. */
-  private _syncInputs(ref: DropListRef<CdkDropList>) {
+  /** Syncs the inputs of the CdkDropGrid with the options of the underlying DropGridRef. */
+  private _syncInputs(ref: DropGridRef<CdkDropGrid>) {
     if (this._dir) {
       this._dir.change
         .pipe(startWith(this._dir.value), takeUntil(this._destroyed))
@@ -205,7 +205,7 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
     ref.beforeStarted.subscribe(() => {
       const siblings = coerceArray(this.connectedTo).map(drop => {
         return typeof drop === 'string' ?
-          CdkDropList._dropLists.find(list => list.id === drop)! : drop;
+          CdkDropGrid._dropLists.find(list => list.id === drop)! : drop;
       });
 
       if (this._group) {
@@ -220,14 +220,12 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
       ref.lockAxis = this.lockAxis;
       ref.sortingDisabled = this.sortingDisabled;
       ref.autoScrollDisabled = this.autoScrollDisabled;
-      ref
-        .connectedTo(siblings.filter(drop => drop && drop !== this).map(list => list._dropContainerRef))
-        .withOrientation(this.orientation);
+      ref.connectedTo(siblings.filter(drop => drop && drop !== this).map(list => list._dropContainerRef));
     });
   }
 
-  /** Handles events from the underlying DropListRef. */
-  private _handleEvents(ref: DropListRef<CdkDropList>) {
+  /** Handles events from the underlying DropGridRef. */
+  private _handleEvents(ref: DropGridRef<CdkDropGrid>) {
     ref.beforeStarted.subscribe(() => {
       this._changeDetectorRef.markForCheck();
     });

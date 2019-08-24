@@ -7,7 +7,7 @@
  */
 
 import {CdkDrag} from './directives/drag';
-import {CdkDropList} from './directives/drop-list';
+import {CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
 
 /** Event emitted when the user starts dragging a draggable. */
 export interface CdkDragStart<T = any> {
@@ -32,11 +32,11 @@ export interface CdkDragEnd<T = any> {
 /** Event emitted when the user moves an item into a new drop container. */
 export interface CdkDragEnter<T = any, I = T> {
   /** Container into which the user has moved the item. */
-  container: CdkDropList<T>;
+  container: CdkDropContainer<T>;
   /** Item that was removed from the container. */
   item: CdkDrag<I>;
   /** Index at which the item has entered the container. */
-  currentIndex: number;
+  currentIndex: any;
 }
 
 /**
@@ -45,7 +45,7 @@ export interface CdkDragEnter<T = any, I = T> {
  */
 export interface CdkDragExit<T = any, I = T> {
   /** Container from which the user has a removed an item. */
-  container: CdkDropList<T>;
+  container: CdkDropContainer<T>;
   /** Item that was removed from the container. */
   item: CdkDrag<I>;
 }
@@ -54,15 +54,15 @@ export interface CdkDragExit<T = any, I = T> {
 /** Event emitted when the user drops a draggable item inside a drop container. */
 export interface CdkDragDrop<T, O = T> {
   /** Index of the item when it was picked up. */
-  previousIndex: number;
+  previousIndex: any;
   /** Current index of the item. */
-  currentIndex: number;
+  currentIndex: any;
   /** Item that is being dropped. */
   item: CdkDrag;
   /** Container in which the item was dropped. */
-  container: CdkDropList<T>;
+  container: CdkDropContainer<T>;
   /** Container from which the item was picked up. Can be the same as the `container`. */
-  previousContainer: CdkDropList<O>;
+  previousContainer: CdkDropContainer<O>;
   /** Whether the user's pointer was over the container when the item was dropped. */
   isPointerOverContainer: boolean;
   /** Distance in pixels that the user has dragged since the drag sequence started. */
@@ -91,11 +91,11 @@ export interface CdkDragMove<T = any> {
 /** Event emitted when the user swaps the position of two drag items. */
 export interface CdkDragSortEvent<T = any, I = T> {
   /** Index from which the item was sorted previously. */
-  previousIndex: number;
+  previousIndex: any;
   /** Index that the item is currently in. */
-  currentIndex: number;
+  currentIndex: any;
   /** Container that the item belongs to. */
-  container: CdkDropList<T>;
+  container: CdkDropContainer<T>;
   /** Item that is being sorted. */
   item: CdkDrag<I>;
 }

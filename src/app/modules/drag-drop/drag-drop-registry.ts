@@ -6,10 +6,12 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Injectable, NgZone, OnDestroy, Inject} from '@angular/core';
+import {Inject, Injectable, NgZone, OnDestroy} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {normalizePassiveListenerOptions} from '@angular/cdk/platform';
 import {Subject} from 'rxjs';
+import {DropContainerRef} from "@modules/drag-drop/containers/drop-container-ref";
+import {DragRef} from "@modules/drag-drop/drag-ref";
 
 /** Event options that can be used to bind an active, capturing event. */
 const activeCapturingEventOptions = normalizePassiveListenerOptions({
@@ -26,17 +28,17 @@ const activeCapturingEventOptions = normalizePassiveListenerOptions({
 // to avoid circular imports. If we were to reference them here, importing the registry into the
 // classes that are registering themselves will introduce a circular import.
 @Injectable({providedIn: 'root'})
-export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
+export class DragDropRegistry implements OnDestroy {
   private _document: Document;
 
   /** Registered drop container instances. */
-  private _dropInstances = new Set<C>();
+  private _dropInstances = new Set<DropContainerRef>();
 
   /** Registered drag item instances. */
-  private _dragInstances = new Set<I>();
+  private _dragInstances = new Set<DragRef>();
 
   /** Drag item instances that are currently being dragged. */
-  private _activeDragInstances = new Set<I>();
+  private _activeDragInstances = new Set<DragRef>();
 
   /** Keeps track of the event listeners that we've bound to the `document`. */
   private _globalListeners = new Map<string, {
@@ -66,18 +68,15 @@ export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
   }
 
   /** Adds a drop container to the registry. */
-  registerDropContainer(drop: C) {
+  registerDropContainer(drop: DropContainerRef) {
     if (!this._dropInstances.has(drop)) {
-      if (this.getDropContainer(drop.id)) {
-        throw Error(`Drop instance with id "${drop.id}" has already been registered.`);
-      }
-
       this._dropInstances.add(drop);
     }
+    throw Error(`Drop instance with has already been registered.`);
   }
 
   /** Adds a drag item instance to the registry. */
-  registerDragItem(drag: I) {
+  registerDragItem(drag: DragRef) {
     this._dragInstances.add(drag);
 
     // The `touchmove` event gets bound once, ahead of time, because WebKit
@@ -94,12 +93,12 @@ export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
   }
 
   /** Removes a drop container from the registry. */
-  removeDropContainer(drop: C) {
+  removeDropContainer(drop: DropContainerRef) {
     this._dropInstances.delete(drop);
   }
 
   /** Removes a drag item instance from the registry. */
-  removeDragItem(drag: I) {
+  removeDragItem(drag: DragRef) {
     this._dragInstances.delete(drag);
     this.stopDragging(drag);
 
@@ -114,7 +113,7 @@ export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
    * @param drag Drag instance which is being dragged.
    * @param event Event that initiated the dragging.
    */
-  startDragging(drag: I, event: TouchEvent | MouseEvent) {
+  startDragging(drag: DragRef, event: TouchEvent | MouseEvent) {
     // Do not process the same drag twice to avoid memory leaks and redundant listeners
     if (this._activeDragInstances.has(drag)) {
       return;
@@ -160,7 +159,7 @@ export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
   }
 
   /** Stops dragging a drag item instance. */
-  stopDragging(drag: I) {
+  stopDragging(drag: DragRef) {
     this._activeDragInstances.delete(drag);
 
     if (this._activeDragInstances.size === 0) {
@@ -169,17 +168,8 @@ export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
   }
 
   /** Gets whether a drag item instance is currently being dragged. */
-  isDragging(drag: I) {
+  isDragging(drag: DragRef) {
     return this._activeDragInstances.has(drag);
-  }
-
-  /**
-   * Gets a drop container by its id.
-   * @deprecated No longer being used. To be removed.
-   * @breaking-change 8.0.0
-   */
-  getDropContainer(id: string): C | undefined {
-    return Array.from(this._dropInstances).find(instance => instance.id === id);
   }
 
   ngOnDestroy() {
@@ -198,7 +188,7 @@ export class DragDropRegistry<I, C extends {id: string}> implements OnDestroy {
     if (this._activeDragInstances.size) {
       event.preventDefault();
     }
-  }
+  };
 
   /** Clears out the global event listeners from the `document`. */
   private _clearGlobalListeners() {

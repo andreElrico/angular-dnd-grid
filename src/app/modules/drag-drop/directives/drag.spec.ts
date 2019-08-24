@@ -3,9 +3,9 @@ import {
   createMouseEvent,
   createTouchEvent,
   dispatchEvent,
+  dispatchFakeEvent,
   dispatchMouseEvent,
   dispatchTouchEvent,
-  dispatchFakeEvent,
 } from '@angular/cdk/testing';
 import {
   AfterViewInit,
@@ -21,21 +21,21 @@ import {
   ViewChildren,
   ViewEncapsulation,
 } from '@angular/core';
-import {TestBed, ComponentFixture, fakeAsync, flush, tick} from '@angular/core/testing';
+import {ComponentFixture, fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
 import {DOCUMENT} from '@angular/common';
 import {ViewportRuler} from '@angular/cdk/scrolling';
 import {of as observableOf} from 'rxjs';
 
 import {DragDropModule} from '../drag-drop-module';
 import {CdkDragDrop, CdkDragEnter} from '../drag-events';
-import {DragRefConfig, Point, DragRef} from '../drag-ref';
+import {DragRef, DragRefConfig, Point} from '../drag-ref';
 import {extendStyles} from '../drag-styling';
 import {moveItemInArray} from '../drag-utils';
 
 import {CDK_DRAG_CONFIG, CdkDrag} from './drag';
 import {CdkDragHandle} from './drag-handle';
 import {CdkDropList} from './drop-list';
-import {CdkDropListGroup} from './drop-list-group';
+import {CdkDropContainerGroup} from './drop-list-group';
 
 const ITEM_HEIGHT = 25;
 const ITEM_WIDTH = 75;
@@ -1148,7 +1148,7 @@ describe('CdkDrag', () => {
       fixture.detectChanges();
 
       const dropInstance = fixture.componentInstance.dropInstance;
-      const dropListRef = dropInstance._dropListRef;
+      const dropListRef = dropInstance._dropContainerRef;
 
       expect(dropListRef.lockAxis).toBeFalsy();
       expect(dropListRef.disabled).toBe(false);
@@ -4501,7 +4501,7 @@ class ConnectedDropZonesWithSingleItems {
   `
 })
 class NestedDropListGroups {
-  @ViewChild('group', {static: false}) group: CdkDropListGroup<CdkDropList>;
+  @ViewChild('group', {static: false}) group: CdkDropContainerGroup<CdkDropList>;
   @ViewChild('listOne', {static: false}) listOne: CdkDropList;
   @ViewChild('listTwo', {static: false}) listTwo: CdkDropList;
 }
