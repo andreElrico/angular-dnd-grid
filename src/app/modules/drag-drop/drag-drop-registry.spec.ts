@@ -15,7 +15,7 @@ import {CdkDropList} from './directives/drop-list';
 describe('DragDropRegistry', () => {
   let fixture: ComponentFixture<SimpleDropZone>;
   let testComponent: SimpleDropZone;
-  let registry: DragDropRegistry;
+  let registry: DragDropRegistry<CdkDrag, CdkDropList>;
 
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
@@ -27,7 +27,7 @@ describe('DragDropRegistry', () => {
     testComponent = fixture.componentInstance;
     fixture.detectChanges();
 
-    inject([DragDropRegistry], (c: DragDropRegistry) => {
+    inject([DragDropRegistry], (c: DragDropRegistry<CdkDrag, CdkDropList>) => {
       registry = c;
     })();
   }));

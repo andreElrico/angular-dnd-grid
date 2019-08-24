@@ -12,8 +12,6 @@ import {normalizePassiveListenerOptions} from '@angular/cdk/platform';
 import {Subject} from 'rxjs';
 import {DropContainerRef} from "./containers/drop-container-ref";
 import {DragRef} from "./drag-ref";
-import {CdkDrag} from "./directives/drag";
-import {CdkDropContainer} from "./directives/drop-container";
 
 /** Event options that can be used to bind an active, capturing event. */
 const activeCapturingEventOptions = normalizePassiveListenerOptions({
@@ -34,13 +32,13 @@ export class DragDropRegistry implements OnDestroy {
   private _document: Document;
 
   /** Registered drop container instances. */
-  private _dropInstances = new Set<CdkDropContainer | DropContainerRef>();
+  private _dropInstances = new Set<DropContainerRef>();
 
   /** Registered drag item instances. */
-  private _dragInstances = new Set<CdkDrag | DragRef>();
+  private _dragInstances = new Set<DragRef>();
 
   /** Drag item instances that are currently being dragged. */
-  private _activeDragInstances = new Set<CdkDrag | DragRef>();
+  private _activeDragInstances = new Set<DragRef>();
 
   /** Keeps track of the event listeners that we've bound to the `document`. */
   private _globalListeners = new Map<string, {
@@ -70,7 +68,7 @@ export class DragDropRegistry implements OnDestroy {
   }
 
   /** Adds a drop container to the registry. */
-  registerDropContainer(drop: CdkDropContainer | DropContainerRef) {
+  registerDropContainer(drop: DropContainerRef) {
     if (!this._dropInstances.has(drop)) {
       this._dropInstances.add(drop);
     } else {
@@ -96,12 +94,12 @@ export class DragDropRegistry implements OnDestroy {
   }
 
   /** Removes a drop container from the registry. */
-  removeDropContainer(drop: CdkDropContainer | DropContainerRef) {
+  removeDropContainer(drop: DropContainerRef) {
     this._dropInstances.delete(drop);
   }
 
   /** Removes a drag item instance from the registry. */
-  removeDragItem(drag: CdkDrag | DragRef) {
+  removeDragItem(drag: DragRef) {
     this._dragInstances.delete(drag);
     this.stopDragging(drag);
 
@@ -116,7 +114,7 @@ export class DragDropRegistry implements OnDestroy {
    * @param drag Drag instance which is being dragged.
    * @param event Event that initiated the dragging.
    */
-  startDragging(drag: CdkDrag | DragRef, event: TouchEvent | MouseEvent) {
+  startDragging(drag: DragRef, event: TouchEvent | MouseEvent) {
     // Do not process the same drag twice to avoid memory leaks and redundant listeners
     if (this._activeDragInstances.has(drag)) {
       return;
@@ -162,7 +160,7 @@ export class DragDropRegistry implements OnDestroy {
   }
 
   /** Stops dragging a drag item instance. */
-  stopDragging(drag: CdkDrag | DragRef) {
+  stopDragging(drag: DragRef) {
     this._activeDragInstances.delete(drag);
 
     if (this._activeDragInstances.size === 0) {
@@ -171,7 +169,7 @@ export class DragDropRegistry implements OnDestroy {
   }
 
   /** Gets whether a drag item instance is currently being dragged. */
-  isDragging(drag: CdkDrag | DragRef) {
+  isDragging(drag: DragRef) {
     return this._activeDragInstances.has(drag);
   }
 
