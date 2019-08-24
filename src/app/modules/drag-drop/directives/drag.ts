@@ -48,7 +48,7 @@ import {CdkDragPreview} from './drag-preview';
 import {CDK_DRAG_PARENT} from '../drag-parent';
 import {DragRef, DragRefConfig, Point} from '../drag-ref';
 import {DragDrop} from '../drag-drop';
-import {CDK_DROP_CONTAINER, CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
+import {CDK_DROP_CONTAINER, CdkDropContainer} from "./drop-container";
 
 /** Injection token that can be used to configure the behavior of `CdkDrag`. */
 export const CDK_DRAG_CONFIG = new InjectionToken<DragRefConfig>('CDK_DRAG_CONFIG', {

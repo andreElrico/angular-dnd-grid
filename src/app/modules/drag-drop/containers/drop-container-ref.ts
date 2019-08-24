@@ -1,5 +1,5 @@
 import {ElementRef} from '@angular/core';
-import {DragRefInternal as DragRef, Point} from "@modules/drag-drop/drag-ref";
+import {DragRefInternal as DragRef, Point} from "../drag-ref";
 import {Subject} from "rxjs";
 import {Direction} from "@angular/cdk/bidi";
 

@@ -8,7 +8,7 @@
 
 import {Directive, Input, OnDestroy} from '@angular/core';
 import {coerceBooleanProperty} from '@angular/cdk/coercion';
-import {CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
+import {CdkDropContainer} from "./drop-container";
 
 /**
  * Declaratively connects sibling `cdkDropList` instances together. All of the `cdkDropList`

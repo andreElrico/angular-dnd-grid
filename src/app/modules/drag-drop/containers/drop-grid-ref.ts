@@ -13,15 +13,15 @@ import {
   incrementVerticalScroll,
   isInsideClientRect,
   ScrollPosition
-} from "@modules/drag-drop/containers/drop-container-ref";
+} from "./drop-container-ref";
 import {ElementRef, NgZone} from "@angular/core";
 import {animationFrameScheduler, interval, Subject, Subscription} from "rxjs";
-import {DragRefInternal as DragRef, Point} from "@modules/drag-drop/drag-ref";
-import {DragDropRegistry} from "@modules/drag-drop/drag-drop-registry";
+import {DragRefInternal as DragRef, Point} from "../drag-ref";
+import {DragDropRegistry} from "../drag-drop-registry";
 import {ViewportRuler} from "@angular/cdk/overlay";
 import {Direction} from "@angular/cdk/bidi";
 import {coerceElement} from "@angular/cdk/coercion";
-import {moveItemInArray} from "@modules/drag-drop/drag-utils";
+import {moveItemInArray} from "../drag-utils";
 import {takeUntil} from "rxjs/operators";
 
 /**

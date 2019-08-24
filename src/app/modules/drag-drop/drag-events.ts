@@ -7,7 +7,7 @@
  */
 
 import {CdkDrag} from './directives/drag';
-import {CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
+import {CdkDropContainer} from "./directives/drop-container";
 
 /** Event emitted when the user starts dragging a draggable. */
 export interface CdkDragStart<T = any> {

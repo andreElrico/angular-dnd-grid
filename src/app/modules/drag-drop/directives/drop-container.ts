@@ -1,6 +1,6 @@
 import {ElementRef, InjectionToken, QueryList} from "@angular/core";
-import {CdkDrag} from "@modules/drag-drop/directives/drag";
-import {DropContainerRef} from "@modules/drag-drop/containers/drop-container-ref";
+import {CdkDrag} from "./drag";
+import {DropContainerRef} from "../containers/drop-container-ref";
 
 export interface CdkDropContainer<T = any> {
   /** DOM node that corresponds to the drop container. */

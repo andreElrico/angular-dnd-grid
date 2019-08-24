@@ -30,7 +30,7 @@ import {
   incrementVerticalScroll,
   isInsideClientRect,
   ScrollPosition
-} from "@modules/drag-drop/containers/drop-container-ref";
+} from "./drop-container-ref";
 
 /**
  * Entry in the position cache for draggable items.

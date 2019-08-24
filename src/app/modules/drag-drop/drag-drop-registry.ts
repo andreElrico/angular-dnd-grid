@@ -10,8 +10,8 @@ import {Inject, Injectable, NgZone, OnDestroy} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {normalizePassiveListenerOptions} from '@angular/cdk/platform';
 import {Subject} from 'rxjs';
-import {DropContainerRef} from "@modules/drag-drop/containers/drop-container-ref";
-import {DragRef} from "@modules/drag-drop/drag-ref";
+import {DropContainerRef} from "./containers/drop-container-ref";
+import {DragRef} from "./drag-ref";
 
 /** Event options that can be used to bind an active, capturing event. */
 const activeCapturingEventOptions = normalizePassiveListenerOptions({

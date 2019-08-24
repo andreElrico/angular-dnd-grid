@@ -30,8 +30,8 @@ import {DragRef} from '../drag-ref';
 import {DragDrop} from '../drag-drop';
 import {Subject} from 'rxjs';
 import {startWith, takeUntil} from 'rxjs/operators';
-import {CDK_DROP_CONTAINER, CdkDropContainer} from "@modules/drag-drop/directives/drop-container";
-import {DropGridRef} from "@modules/drag-drop/containers/drop-grid-ref";
+import {CDK_DROP_CONTAINER, CdkDropContainer} from "./drop-container";
+import {DropGridRef} from "../containers/drop-grid-ref";
 
 /** Counter used to generate unique ids for drop zones. */
 let _uniqueIdCounter = 0;

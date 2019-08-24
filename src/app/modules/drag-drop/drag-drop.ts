@@ -12,7 +12,7 @@ import {ViewportRuler} from '@angular/cdk/scrolling';
 import {DragRef, DragRefConfig} from './drag-ref';
 import {DropListRef} from './containers/drop-list-ref';
 import {DragDropRegistry} from './drag-drop-registry';
-import {DropGridRef} from "@modules/drag-drop/containers/drop-grid-ref";
+import {DropGridRef} from "./containers/drop-grid-ref";
 
 /** Default configuration to be used when creating a `DragRef`. */
 const DEFAULT_CONFIG = {

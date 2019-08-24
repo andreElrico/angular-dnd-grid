@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
+import {moveItemInArray, transferArrayItem} from "./modules/drag-drop/drag-utils";
 
 @Component({
   selector: 'app-root',

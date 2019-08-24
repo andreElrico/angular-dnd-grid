@@ -16,7 +16,7 @@ import {startWith} from 'rxjs/operators';
 import {DragDropRegistry} from './drag-drop-registry';
 import {extendStyles, toggleNativeDragInteractions} from './drag-styling';
 import {getTransformTransitionDurationInMs} from './transition-duration';
-import {DropContainerRef} from "@modules/drag-drop/containers/drop-container-ref";
+import {DropContainerRef} from "./containers/drop-container-ref";
 
 /** Object that can be used to configure the behavior of DragRef. */
 export interface DragRefConfig {
