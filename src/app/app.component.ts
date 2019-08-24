@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
 
 @Component({
   selector: 'app-root',
@@ -28,14 +29,11 @@ export class AppComponent {
 
   drop(event) {
     console.log(event);
-    /* if (event.previousContainer === event.container) {
-       // moveItemInArray(event.container.data, event.previousIndex.index, event.currentIndex.index);
-     } else {
-       transferArrayItem(event.previousContainer.data,
-         event.container.data,
-         event.previousIndex.index,
-         event.currentIndex.index);
-     }*/
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+    }
   }
 
 
