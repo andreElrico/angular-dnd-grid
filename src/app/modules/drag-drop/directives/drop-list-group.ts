@@ -11,10 +11,10 @@ import {coerceBooleanProperty} from '@angular/cdk/coercion';
 import {CdkDropContainer} from "./drop-container";
 
 /**
- * Declaratively connects sibling `cdkDropList` instances together. All of the `cdkDropList`
- * elements that are placed inside a `cdkDropListGroup` will be connected to each other
- * automatically. Can be used as an alternative to the `cdkDropListConnectedTo` input
- * from `cdkDropList`.
+ * Declaratively connects sibling `cdkDropContainer` instances together. All of the `cdkDropContainer`
+ * elements that are placed inside a `cdkDropContainerGroup` will be connected to each other
+ * automatically. Can be used as an alternative to the `cdkDropContainerConnectedTo` input
+ * from `cdkDropContainer`.
  */
 @Directive({
   selector: '[cdkDropContainerGroup]',

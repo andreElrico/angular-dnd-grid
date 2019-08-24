@@ -1,11 +1,11 @@
-import {QueryList, ViewChildren, Component} from '@angular/core';
-import {fakeAsync, TestBed, ComponentFixture, inject} from '@angular/core/testing';
+import {Component, QueryList, ViewChildren} from '@angular/core';
+import {ComponentFixture, fakeAsync, inject, TestBed} from '@angular/core/testing';
 import {
   createMouseEvent,
-  dispatchMouseEvent,
   createTouchEvent,
-  dispatchTouchEvent,
   dispatchFakeEvent,
+  dispatchMouseEvent,
+  dispatchTouchEvent,
 } from '@angular/cdk/testing';
 import {DragDropRegistry} from './drag-drop-registry';
 import {DragDropModule} from './drag-drop-module';
@@ -15,7 +15,7 @@ import {CdkDropList} from './directives/drop-list';
 describe('DragDropRegistry', () => {
   let fixture: ComponentFixture<SimpleDropZone>;
   let testComponent: SimpleDropZone;
-  let registry: DragDropRegistry<CdkDrag, CdkDropList>;
+  let registry: DragDropRegistry;
 
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
@@ -27,7 +27,7 @@ describe('DragDropRegistry', () => {
     testComponent = fixture.componentInstance;
     fixture.detectChanges();
 
-    inject([DragDropRegistry], (c: DragDropRegistry<CdkDrag, CdkDropList>) => {
+    inject([DragDropRegistry], (c: DragDropRegistry) => {
       registry = c;
     })();
   }));

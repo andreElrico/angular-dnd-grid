@@ -4406,7 +4406,7 @@ class ConnectedDropZones implements AfterViewInit {
     }
   `],
   template: `
-    <div cdkDropListGroup [cdkDropListGroupDisabled]="groupDisabled">
+      <div cdkDropContainer [cdkDropContainerDisabled]="groupDisabled">
       <div
         cdkDropList
         [cdkDropListData]="todo"
@@ -4490,7 +4490,7 @@ class ConnectedDropZonesWithSingleItems {
 
 @Component({
   template: `
-    <div cdkDropListGroup #group="cdkDropListGroup">
+      <div cdkDropContainer #group="cdkDropContainer">
       <div cdkDropList #listOne="cdkDropList">
         <div cdkDropList #listThree="cdkDropList"></div>
         <div cdkDropList #listFour="cdkDropList"></div>
@@ -4501,7 +4501,7 @@ class ConnectedDropZonesWithSingleItems {
   `
 })
 class NestedDropListGroups {
-  @ViewChild('group', {static: false}) group: CdkDropContainerGroup<CdkDropList>;
+  @ViewChild('group', {static: false}) group: CdkDropContainerGroup;
   @ViewChild('listOne', {static: false}) listOne: CdkDropList;
   @ViewChild('listTwo', {static: false}) listTwo: CdkDropList;
 }
@@ -4554,7 +4554,7 @@ class DraggableInDropZoneWithoutEvents {
     }
   `],
   template: `
-    <div cdkDropListGroup>
+      <div cdkDropContainer>
       <wrapped-drop-container [items]="todo"></wrapped-drop-container>
       <wrapped-drop-container [items]="done"></wrapped-drop-container>
     </div>
