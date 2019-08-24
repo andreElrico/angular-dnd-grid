@@ -28,6 +28,7 @@ import {CdkDropGrid} from "./directives/drop-grid";
   ],
   exports: [
     CdkDropList,
+    CdkDropGrid,
     CdkDropContainerGroup,
     CdkDrag,
     CdkDragHandle,

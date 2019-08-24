@@ -22,6 +22,7 @@ import {
   AutoScrollVerticalDirection,
   DROP_PROXIMITY_THRESHOLD,
   DropContainerRef,
+  findIndex,
   getHorizontalScrollDirection,
   getMutableClientRect,
   getVerticalScrollDirection,
@@ -333,72 +334,6 @@ export class DropListRef<T = any> implements DropContainerRef<T> {
   }
 
   /**
-   * Sets the draggable items that are a part of this list.
-   * @param items Items that are a part of this list.
-   */
-  withItems(items: DragRef[]): this {
-    this._draggables = items;
-    items.forEach(item => item._withDropContainer(this));
-
-    if (this.isDragging()) {
-      this._cacheItems();
-    }
-
-    return this;
-  }
-
-  /** Sets the layout direction of the drop list. */
-  withDirection(direction: Direction): this {
-    this._direction = direction;
-    return this;
-  }
-
-  /**
-   * Sets the containers that are connected to this one. When two or more containers are
-   * connected, the user will be allowed to transfer items between them.
-   * @param connectedTo Other containers that the current containers should be connected to.
-   */
-  connectedTo(connectedTo: DropContainerRef[]): this {
-    this._siblings = connectedTo.slice();
-    return this;
-  }
-
-  /**
-   * Sets the orientation of the container.
-   * @param orientation New orientation for the container.
-   */
-  withOrientation(orientation: 'vertical' | 'horizontal'): this {
-    this._orientation = orientation;
-    return this;
-  }
-
-  /**
-   * Figures out the index of an item in the container.
-   * @param item Item whose index should be determined.
-   */
-  getItemIndex(item: DragRef): number {
-    if (!this._isDragging) {
-      return this._draggables.indexOf(item);
-    }
-
-    // Items are sorted always by top/left in the cache, however they flow differently in RTL.
-    // The rest of the logic still stands no matter what orientation we're in, however
-    // we need to invert the array when determining the index.
-    const items = this._orientation === 'horizontal' && this._direction === 'rtl' ?
-      this._itemPositions.slice().reverse() : this._itemPositions;
-
-    return findIndex(items, currentItem => currentItem.drag === item);
-  }
-
-  /**
-   * Whether the list is able to receive the item that
-   * is currently being dragged inside a connected drop list.
-   */
-  isReceiving(): boolean {
-    return this._activeSiblings.size > 0;
-  }
-
-  /**
    * Sorts an item inside the container based on its position.
    * @param item Item to be sorted.
    * @param pointerX Position of the item along the X axis.
@@ -477,6 +412,72 @@ export class DropListRef<T = any> implements DropContainerRef<T> {
         adjustClientRect(sibling.clientRect, offset, 0);
       }
     });
+  }
+
+  /**
+   * Sets the draggable items that are a part of this list.
+   * @param items Items that are a part of this list.
+   */
+  withItems(items: DragRef[]): this {
+    this._draggables = items;
+    items.forEach(item => item._withDropContainer(this));
+
+    if (this.isDragging()) {
+      this._cacheItems();
+    }
+
+    return this;
+  }
+
+  /** Sets the layout direction of the drop list. */
+  withDirection(direction: Direction): this {
+    this._direction = direction;
+    return this;
+  }
+
+  /**
+   * Sets the containers that are connected to this one. When two or more containers are
+   * connected, the user will be allowed to transfer items between them.
+   * @param connectedTo Other containers that the current containers should be connected to.
+   */
+  connectedTo(connectedTo: DropContainerRef[]): this {
+    this._siblings = connectedTo.slice();
+    return this;
+  }
+
+  /**
+   * Sets the orientation of the container.
+   * @param orientation New orientation for the container.
+   */
+  withOrientation(orientation: 'vertical' | 'horizontal'): this {
+    this._orientation = orientation;
+    return this;
+  }
+
+  /**
+   * Figures out the index of an item in the container.
+   * @param item Item whose index should be determined.
+   */
+  getItemIndex(item: DragRef): number {
+    if (!this._isDragging) {
+      return this._draggables.indexOf(item);
+    }
+
+    // Items are sorted always by top/left in the cache, however they flow differently in RTL.
+    // The rest of the logic still stands no matter what orientation we're in, however
+    // we need to invert the array when determining the index.
+    const items = this._orientation === 'horizontal' && this._direction === 'rtl' ?
+      this._itemPositions.slice().reverse() : this._itemPositions;
+
+    return findIndex(items, currentItem => currentItem.drag === item);
+  }
+
+  /**
+   * Whether the list is able to receive the item that
+   * is currently being dragged inside a connected drop list.
+   */
+  isReceiving(): boolean {
+    return this._activeSiblings.size > 0;
   }
 
   /**
@@ -841,20 +842,4 @@ export class DropListRef<T = any> implements DropContainerRef<T> {
   _stopReceiving(sibling: DropContainerRef) {
     this._activeSiblings.delete(sibling);
   }
-}
-
-/**
- * Finds the index of an item that matches a predicate function. Used as an equivalent
- * of `Array.prototype.findIndex` which isn't part of the standard Google typings.
- * @param array Array in which to look for matches.
- * @param predicate Function used to determine whether an item is a match.
- */
-function findIndex<T>(array: T[], predicate: (value: T, index: number, obj: T[]) => boolean): number {
-  for (let i = 0; i < array.length; i++) {
-    if (predicate(array[i], i, array)) {
-      return i;
-    }
-  }
-
-  return -1;
 }

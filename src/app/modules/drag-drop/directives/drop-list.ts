@@ -59,7 +59,7 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
   private _destroyed = new Subject<void>();
 
   /** Keeps track of the drop lists that are currently on the page. */
-  private static _dropLists: CdkDropList[] = [];
+  private static _dropContainers: CdkDropContainer[] = [];
 
   /** Reference to the underlying drop list instance. */
   _dropContainerRef: DropListRef<CdkDropList<T>>;
@@ -163,7 +163,7 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
 
     this._syncInputs(this._dropContainerRef);
     this._handleEvents(this._dropContainerRef);
-    CdkDropList._dropLists.push(this);
+    CdkDropList._dropContainers.push(this);
 
     if (_group) {
       _group._items.add(this);
@@ -179,10 +179,10 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
   }
 
   ngOnDestroy() {
-    const index = CdkDropList._dropLists.indexOf(this);
+    const index = CdkDropList._dropContainers.indexOf(this);
 
     if (index > -1) {
-      CdkDropList._dropLists.splice(index, 1);
+      CdkDropList._dropContainers.splice(index, 1);
     }
 
     if (this._group) {
@@ -205,7 +205,7 @@ export class CdkDropList<T = any> implements CdkDropContainer, AfterContentInit,
     ref.beforeStarted.subscribe(() => {
       const siblings = coerceArray(this.connectedTo).map(drop => {
         return typeof drop === 'string' ?
-          CdkDropList._dropLists.find(list => list.id === drop)! : drop;
+          CdkDropList._dropContainers.find(list => list.id === drop)! : drop;
       });
 
       if (this._group) {

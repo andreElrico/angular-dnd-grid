@@ -59,7 +59,7 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
   private _destroyed = new Subject<void>();
 
   /** Keeps track of the drop lists that are currently on the page. */
-  private static _dropLists: CdkDropGrid[] = [];
+  private static _dropContainers: CdkDropContainer[] = [];
 
   /** Reference to the underlying drop list instance. */
   _dropContainerRef: DropGridRef<CdkDropGrid<T>>;
@@ -82,8 +82,8 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
   /** Arbitrary data to attach to this container. */
   @Input('cdkDropGridData') data: T;
 
-  /** Direction in which the list is oriented. */
-  @Input('cdkDropGridOrientation') orientation: 'horizontal' | 'vertical' = 'vertical';
+  /** Number of columns of the grid **/
+  @Input('cdkDropGridColumns') columns: number = 12;
 
   /**
    * Unique ID for the drop zone. Can be used as a reference
@@ -163,7 +163,7 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
 
     this._syncInputs(this._dropContainerRef);
     this._handleEvents(this._dropContainerRef);
-    CdkDropGrid._dropLists.push(this);
+    CdkDropGrid._dropContainers.push(this);
 
     if (_group) {
       _group._items.add(this);
@@ -176,13 +176,14 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
       .subscribe((items: QueryList<CdkDrag>) => {
         this._dropContainerRef.withItems(items.map(drag => drag._dragRef));
       });
+    this._paintGrid();
   }
 
   ngOnDestroy() {
-    const index = CdkDropGrid._dropLists.indexOf(this);
+    const index = CdkDropGrid._dropContainers.indexOf(this);
 
     if (index > -1) {
-      CdkDropGrid._dropLists.splice(index, 1);
+      CdkDropGrid._dropContainers.splice(index, 1);
     }
 
     if (this._group) {
@@ -192,6 +193,20 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
     this._dropContainerRef.dispose();
     this._destroyed.next();
     this._destroyed.complete();
+  }
+
+  private _paintGrid() {
+    const gridElement = this.element.nativeElement;
+    const cellSize = Math.floor(gridElement.offsetWidth / this.columns);
+    gridElement.style.position = 'relative';
+    gridElement.style.display = 'grid';
+    gridElement.style.gridTemplateColumns = `repeat(${this.columns}, 1fr)`;
+    gridElement.style.gridAutoRows = `${cellSize}px`;
+    gridElement.style.backgroundSize = `${cellSize}px ${cellSize}px`;
+    gridElement.style.minHeight = 'auto';
+    this._draggables.forEach(item => {
+      item.element.nativeElement.style.gridArea = `${item.data.y} / ${item.data.x} / ${item.data.y + item.data.height} / ${item.data.x + item.data.width}`;
+    });
   }
 
   /** Syncs the inputs of the CdkDropGrid with the options of the underlying DropGridRef. */
@@ -205,7 +220,7 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
     ref.beforeStarted.subscribe(() => {
       const siblings = coerceArray(this.connectedTo).map(drop => {
         return typeof drop === 'string' ?
-          CdkDropGrid._dropLists.find(list => list.id === drop)! : drop;
+          CdkDropGrid._dropContainers.find(list => list.id === drop)! : drop;
       });
 
       if (this._group) {

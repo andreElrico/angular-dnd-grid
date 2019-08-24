@@ -71,8 +71,9 @@ export class DragDropRegistry implements OnDestroy {
   registerDropContainer(drop: DropContainerRef) {
     if (!this._dropInstances.has(drop)) {
       this._dropInstances.add(drop);
+    } else {
+      throw Error(`Drop instance with has already been registered.`);
     }
-    throw Error(`Drop instance with has already been registered.`);
   }
 
   /** Adds a drag item instance to the registry. */

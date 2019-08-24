@@ -114,7 +114,7 @@ export interface DropContainerRef<T = any> {
    * @param distance Distance the user has dragged since the start of the dragging sequence.
    * @breaking-change 9.0.0 `distance` parameter to become required.
    */
-  drop(item: DragRef, currentIndex: number, previousContainer: DropContainerRef, isPointerOverContainer: boolean, distance: Point): void;
+  drop(item: DragRef, currentIndex: any, previousContainer: DropContainerRef, isPointerOverContainer: boolean, distance: Point): void;
 
   /**
    * Sorts an item inside the container based on its position.
@@ -307,4 +307,20 @@ export function getHorizontalScrollDirection(clientRect: ClientRect, pointerX: n
   }
 
   return AutoScrollHorizontalDirection.NONE;
+}
+
+/**
+ * Finds the index of an item that matches a predicate function. Used as an equivalent
+ * of `Array.prototype.findIndex` which isn't part of the standard Google typings.
+ * @param array Array in which to look for matches.
+ * @param predicate Function used to determine whether an item is a match.
+ */
+export function findIndex<T>(array: T[], predicate: (value: T, index: number, obj: T[]) => boolean): number {
+  for (let i = 0; i < array.length; i++) {
+    if (predicate(array[i], i, array)) {
+      return i;
+    }
+  }
+
+  return -1;
 }
