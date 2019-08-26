@@ -24,6 +24,16 @@ import {coerceElement} from "@angular/cdk/coercion";
 import {moveItemInArray} from "../drag-utils";
 import {takeUntil} from "rxjs/operators";
 
+interface GridCell {
+  row: number;
+  col: number;
+}
+
+interface GridPosition {
+  cellStart: GridCell;
+  cellEnd: GridCell;
+}
+
 /**
  * Entry in the position cache for draggable items.
  * @docs-private
@@ -108,6 +118,9 @@ export class DropGridRef<T = any> implements DropContainerRef<T> {
 
   /** Arbitrary data that can be attached to the drop list. */
   data: T;
+
+  /** Cell size of the grid **/
+  cellSize: number;
 
   /** Whether an item in the list is being dragged. */
   private _isDragging = false;
@@ -333,8 +346,8 @@ export class DropGridRef<T = any> implements DropContainerRef<T> {
 
     const siblings = this._itemPositions;
     const newIndex = this._getItemIndexFromPointerPosition(item, pointerX, pointerY, pointerDelta);
-
-    if (newIndex === -1 && siblings.length > 0) {
+    const newGridPosition = this._getGridPositionFromPointer({x: pointerX, y: pointerY});
+    if (!newGridPosition && siblings.length > 0) {
       return;
     }
 
@@ -753,10 +766,10 @@ export class DropGridRef<T = any> implements DropContainerRef<T> {
       // offset in order to push the element to where it will be when it's inline and is influenced
       // by the `margin` of its siblings.
       if (delta === -1) {
-        siblingOffset.x -= immediateSibling.clientRect.left - currentPosition.right;
-        siblingOffset.y -= immediateSibling.clientRect.top - currentPosition.bottom;
+        siblingOffset.x = currentPosition.width;
+        siblingOffset.y = 0;
       } else {
-        siblingOffset.x += currentPosition.left - immediateSibling.clientRect.right;
+        siblingOffset.x = currentPosition.left - immediateSibling.clientRect.right;
         siblingOffset.y += currentPosition.top - immediateSibling.clientRect.bottom;
       }
     }
@@ -790,5 +803,12 @@ export class DropGridRef<T = any> implements DropContainerRef<T> {
       return (pointerX >= Math.floor(clientRect.left) && pointerX <= Math.floor(clientRect.right))
         && (pointerY >= Math.floor(clientRect.top) && pointerY <= Math.floor(clientRect.bottom));
     });
+  }
+
+  private _getGridPositionFromPointer(point: Point) {
+    return {
+      row: Math.floor((point.y - coerceElement(this.element).offsetTop) / this.cellSize),
+      col: Math.floor((point.x - coerceElement(this.element).offsetLeft) / this.cellSize)
+    }
   }
 }

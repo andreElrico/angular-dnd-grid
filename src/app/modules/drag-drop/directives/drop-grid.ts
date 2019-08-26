@@ -55,6 +55,7 @@ let _uniqueIdCounter = 0;
   }
 })
 export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit, OnDestroy {
+
   /** Emits when the list has been destroyed. */
   private _destroyed = new Subject<void>();
 
@@ -83,8 +84,17 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
   @Input('cdkDropGridData') data: T;
 
   /** Number of columns of the grid **/
-  @Input('cdkDropGridColumns') columns: number = 12;
+  @Input('cdkDropGridColumns')
+  get columns(): number {
+    return this._columns;
+  }
 
+  set columns(value: number) {
+    this._columns = value;
+    this._paintGrid();
+  }
+
+  private _columns: number = 12;
   /**
    * Unique ID for the drop zone. Can be used as a reference
    * in the `connectedTo` of another `CdkDropGrid`.
@@ -197,13 +207,15 @@ export class CdkDropGrid<T = any> implements CdkDropContainer, AfterContentInit,
 
   private _paintGrid() {
     const gridElement = this.element.nativeElement;
-    const cellSize = Math.floor(gridElement.offsetWidth / this.columns);
+    const cellSize = Math.floor(gridElement.clientWidth / this.columns);
+    this._dropContainerRef.cellSize = cellSize;
     gridElement.style.position = 'relative';
     gridElement.style.display = 'grid';
-    gridElement.style.gridTemplateColumns = `repeat(${this.columns}, 1fr)`;
+    gridElement.style.gridTemplateColumns = `repeat(${this.columns}, ${cellSize}px)`;
     gridElement.style.gridAutoRows = `${cellSize}px`;
     gridElement.style.backgroundSize = `${cellSize}px ${cellSize}px`;
     gridElement.style.minHeight = 'auto';
+    gridElement.style.justifyContent = 'center';
     this._draggables.forEach(item => {
       item.element.nativeElement.style.gridArea = `${item.data.y} / ${item.data.x} / ${item.data.y + item.data.height} / ${item.data.x + item.data.width}`;
     });
